@@ -4,23 +4,21 @@
 using namespace std;
 int main()
 {
-	long long n, p;
-	cin >> n >> p;
+	int n, i, p, index = 0, maxn = -1;
+	long long value;
 	vector<long long> v;
+	cin >> n >> p;
 	v.resize(n);
-	for(int i = 0; i < n; i++)
-		scanf("%d", &v[i]);
+	for(i = 0; i < n; i++)
+		scanf("%lld", &v[i]);
 	sort(v.begin(), v.end());
-	long long mp, c = 0, maxn = 0, j=0;
-	for(int i = 0; i < v.size();i++){
-		c = maxn;
-		mp = v[i]*p;
-		for(j = i+maxn; j < v.size();j++)
-			if(v[j] <= mp) c++;
-			else break;
-		if(c > maxn) maxn = c;
-		if(j > v.size()-1) break;
+	for(i = 0; i < n; i++)
+	{
+		value = v[i] * p;
+		while(index < n && v[index] <= value) index++;
+		if(index - i > maxn) maxn = index - i;
+		if(index == n) break;
 	}
-	cout << c;
+	cout << maxn << endl;
 	return 0;
 }

@@ -1,65 +1,67 @@
 #include <iostream>
-#include <cmath>
+#include <vector>
 #include <algorithm>
 #include <queue>
-#include <vector>
+#include <cmath>
 using namespace std;
-int v[1010];
-int tree[2010][2];
-int getH(int num)
+vector<int> pre, level;
+int tree[1010][3], index = 0;
+int getheight(int nnum)
 {
-	int i = 0;
-	for(; num > pow(2, i+1)-1; i++);
-	return i;
-}
-int createT(int left, int right)
-{
-	int nnum = right-left+1;
-//	cout << "nnum: " << nnum << " ";
-	if(nnum == 1) {
-//		cout << "root: " << v[left] << endl;
-		tree[v[left]][0] = -1;
-		tree[v[left]][1] = -1;
-		return v[left];
-	} else if(nnum > 1){
-		int h = getH(nnum), ln;
-		int lt = pow(2, h) - 1;
-		int rrest = nnum - lt;
-		if(rrest <= pow(2, h-1))
-			ln = pow(2, h-1) - 1 + rrest;
-		else
-			ln = pow(2, h) - 1;
-		
-//		cout << "root: " << v[left+ln] << " " << "h: " << h << endl; 
-		int leftT=-1, rightT=-1;
-		if(left+ln-1 >= left)		
-			leftT = createT(left, left+ln-1);
-		if(right >= left+ln+1)
-			rightT = createT(left+ln+1, right);
-		tree[v[left+ln]][0] = leftT;
-		tree[v[left+ln]][1] = rightT;
-		return v[left+ln];
+	if(nnum == 0) return 0;
+	int h = 1;
+	while(true) {
+		if(nnum >= pow(2, h-1) && nnum <= pow(2, h)-1) return h;
+		h++;
 	}
+}
+int createCBST(int left, int right)
+{
+	if(left > right) return -1;
+	int root = index;
+	index++;
+	if(left == right) {
+		tree[root][0] = pre[left];
+		tree[root][1] = -1;
+		tree[root][2] = -1;
+		return root;
+	}
+	if(right > left) {
+		int nnum = right - left + 1, lnum, rnum;
+		int h = getheight(nnum);
+		int cnum = pow(2, h-1) -1 + pow(2, h-1)/2;
+		if(nnum > cnum) {
+			lnum = pow(2, h-1) - 1;
+		} else {
+			rnum = pow(2, h-2) - 1;
+			lnum = nnum - rnum - 1;
+		}
+		int ln = createCBST(left, left+lnum-1);
+		int rn = createCBST(left+lnum+1, right);
+		tree[root][0] = pre[left+lnum];
+		tree[root][1] = ln;
+		tree[root][2] = rn;
+		return root;
+	}
+	
 }
 int main()
 {
-	int n, i;
+	int n,i, root;
 	cin >> n;
+	pre.resize(n);
 	for(i = 0; i < n; i++)
-		scanf("%d", &v[i]);
-	sort(v,v+n);
-	int root = createT(0, n-1);
+		scanf("%d", &pre[i]);
+	sort(pre.begin(), pre.end());
+	root = createCBST(0, n-1);
 	queue<int> q;
-	vector<int> level;
 	q.push(root);
-	while(!q.empty())
-	{
-		int w = q.front();
+	while(!q.empty()) {
+		int v = q.front();
+		level.push_back(tree[v][0]);
 		q.pop();
-		level.push_back(w);
-		if(tree[w][0] != -1) q.push(tree[w][0]);
-		if(tree[w][1] != -1) q.push(tree[w][1]);
-//		cout << w << " " << tree[w][0] << " " << tree[w][1] << endl;
+		if(tree[v][1] != -1) q.push(tree[v][1]);
+		if(tree[v][2] != -1) q.push(tree[v][2]);
 	}
 	for(i = 0; i < level.size(); i++)
 	{

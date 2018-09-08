@@ -1,42 +1,40 @@
 #include <iostream>
-#include <algorithm>
+#include <cstring>
 using namespace std;
 int main()
 {
-	int i, point = -1, offset = 0, move = 1;
-	string s,rst="", temp = "";
-	cin >> s;
-	if(s[0] == '-') rst += "-";
-	s = s.substr(1);
-	for(i = 0; i < s.length(); i++)
+	int p, i, indexb = 0, index;
+	string s = "";
+	char a[100010], b[100010];
+	scanf("%s", a);
+	for(i = 1; i < strlen(a); i++)
 	{
-		if(point == -1 && s[i] == '.') {
-			point = i;
+		if(a[i] == '.') {
+			p = i;
 			continue;	
 		}
-		if(s[i] == 'E') {
-			if(s[i+1] == '-') move = 0;
-			offset = stoi(s.substr(i+2));
-			break;
-		}
-		temp += s[i];
+		else if(a[i] == 'E') break;
+		else b[indexb++] = a[i]; 
 	}
-	if(move == 0) point -= offset;
-	else point += offset;
-	if(point <= 0) {
-		for(i = abs(point); i > 0; i--)
-			temp = "0" + temp;
-		temp = "0." + temp;
-	} else if(point >= temp.length()){
-		for(i = temp.length(); i < point; i++)
-			temp += "0";
+	i++;
+	while(i < strlen(a)) s += a[i++];
+	index = stoi(s);
+	if(a[0] == '-') printf("-");
+	if(p - 1 + index <= 0) {
+		printf("0.");
+		for(i = p - 1 + index; i < 0; i++)
+			printf("0");
+		printf("%s", b);
 	} else {
-		temp = temp.substr(0, point) + "." + temp.substr(point);
+		indexb = 0;
+		for(i = 0; indexb < strlen(b) || i < p-1+index; i++)
+		{
+			if(indexb >= strlen(b)) printf("0");
+			else {
+				if(i == p-1+index) printf(".");
+				else printf("%c", b[indexb++]);
+			}
+		}
 	}
-	i = 0;
-	while(temp[i] == '0' && i+1 < temp.size() && temp[i+1] != '.') temp = temp.substr(1);
-	if(temp == "") temp = "0";
-	rst += temp;
-	cout << rst;
 	return 0;
 }

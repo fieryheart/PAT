@@ -1,43 +1,42 @@
 #include <iostream>
+#include <cstring>
 #include <vector>
-#include <string.h>
 #include <algorithm>
 using namespace std;
-struct Man{
-	char name[10];
+struct Person{
+	char name[15];
 	int age, worth;
-}man[100010];
-int Age[210] = {0};
-vector<int> v;
-bool cmp(struct Man q, struct Man p)
+}people[100010];
+vector<int> age[210], data;
+bool cmp1(struct Person q, struct Person p)
 {
-	return q.worth != p.worth ? q.worth > p.worth : (q.age != p.age ? q.age < p.age : strcmp(q.name, p.name) < 0); 
+	return q.worth != p.worth ? q.worth > p.worth : (q.age != p.age ? q.age < p.age : strcmp(q.name, p.name) < 0);
 }
 int main()
 {
-	int n, k, m, amin, amax, i, j, t;
+	int n, k, m, i, j, v, w, t;
 	cin >> n >> k;
 	for(i = 0; i < n; i++)
-		scanf("%s %d %d", &man[i].name, &man[i].age, &man[i].worth);
-	sort(man, man+n, cmp);
+		scanf("%s %d %d", people[i].name, &people[i].age, &people[i].worth);
+	sort(people, people+n, cmp1);
 	for(i = 0; i < n; i++)
-		if(Age[man[i].age] < 100){
-			v.push_back(i);;
-			Age[man[i].age]++;	
+		if(age[people[i].age].size() < 100) {
+			data.push_back(i);
+			age[people[i].age].push_back(i);
 		}
-	for(i = 1; i <= k; i++)
-	{
-		scanf("%d%d%d", &m, &amin, &amax);
-		vector<int> group;
-		for(j = 0; j < v.size(); j++)
-			if(man[v[j]].age >= amin && man[v[j]].age <= amax)
-				group.push_back(v[j]);
+	for(i = 1; i <= k; i++) {
+		scanf("%d%d%d", &m, &v, &w);
+		vector<int> temp;
+		for(j = 0; j < data.size(); j++)
+			if(people[data[j]].age >= v && people[data[j]].age <= w)
+				temp.push_back(data[j]);
 		printf("Case #%d:\n", i);
-		if(group.size() == 0) printf("None\n");
-		else {
-			for(j = 0; j < group.size() && j < m; j++)
-				printf("%s %d %d\n", man[group[j]].name, man[group[j]].age, man[group[j]].worth);
+		if(temp.size() == 0) {
+			printf("None\n");
+			continue;
 		}
+		for(j = 0; j < temp.size() && j < m; j++)
+			printf("%s %d %d\n", people[temp[j]].name, people[temp[j]].age, people[temp[j]].worth);
 	}
 	return 0;
 }

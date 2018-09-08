@@ -1,71 +1,72 @@
 #include <iostream>
+#include <vector>
 #include <algorithm>
-#include <map>
 using namespace std;
+typedef struct Record record;
 struct Record{
 	string name;
-	int month, day, hour, minute, time;
+	int time, mon, dd, hh, mm;
 	bool flag;
-};
-struct Record record[1010];
-map< string, vector<struct Record> > mapp;
-int bill[24];
-int n, dayBill = 0;
-bool cmp1(struct Record q, struct Record p)
+}rcd[1010];
+vector<record> v;
+int rate[25], total = 0;
+bool cmp(record q, record p)
 {
 	return q.name != p.name ? q.name < p.name : q.time < p.time;
 }
-double getBill(struct Record q) {
-	int money = 0;
-	money += dayBill * q.day;
-	for(int i = 0; i < q.hour; i++) money += 60*bill[i];
-	money += q.minute * bill[q.hour];
-	return money/100.0;
+double getMoney(record r)
+{
+	int dd = r.dd, hh = r.hh, mm = r.mm;
+	double ans = 0.0;
+	ans += dd * total * 60;
+	for(int i = 0; i < hh; i++)
+		ans += rate[i]*60;
+	ans += mm * rate[hh];
+	return ans / 100.0;	
 }
 int main()
 {
-	int i, j;
-	char status[10];
+	int n, i;
+	char statue[10];
 	for(i = 0; i < 24; i++){
-		scanf("%d", &bill[i]);
-		dayBill += bill[i]*60;	
+		scanf("%d", &rate[i]);
+		total += rate[i];	
 	}
 	cin >> n;
 	for(i = 0; i < n; i++)
 	{
-		cin >> record[i].name;
-		scanf("%d:%d:%d:%d %s", &record[i].month, &record[i].day, &record[i].hour, &record[i].minute, status);
-		record[i].time = record[i].day*60*24 + record[i].hour*60 + record[i].minute;
-		if(status[1] == 'n') record[i].flag = true;
-		if(status[1] == 'f') record[i].flag = false;
+		cin >> rcd[i].name;
+		scanf("%d:%d:%d:%d %s", &rcd[i].mon, &rcd[i].dd, &rcd[i].hh, &rcd[i].mm, statue);
+		rcd[i].time = rcd[i].dd*24*60 + rcd[i].hh*60 + rcd[i].mm;
+		if(statue[1] == 'n') rcd[i].flag = true;
+		else rcd[i].flag = false;
 	}
-	sort(record, record+n, cmp1);
+	sort(rcd, rcd+n, cmp);
 //	for(i = 0; i < n; i++)
-//		cout << record[i].name << " " << record[i].time << " " << record[i].flag << endl;
-	for(i = 1; i < n; i++)
-	{
-		if(record[i].name == record[i-1].name && record[i-1].flag == true && record[i].flag == false) {
-			mapp[record[i-1].name].push_back(record[i-1]);
-			mapp[record[i].name].push_back(record[i]);
+//		cout << rcd[i].name << " " << rcd[i].time << " " << rcd[i].flag << endl;
+	for(i = 0; i < n-1; i++)
+		if(rcd[i].name == rcd[i+1].name && rcd[i].flag == 1 && rcd[i+1].flag == 0)
+		{
+			v.push_back(rcd[i]);
+			v.push_back(rcd[i+1]);
 		}
-	}
-//	for(auto it = mapp.begin(); it != mapp.end(); it++)
-//		for(j = 0; j < it->second.size(); j++)
-//			cout << it->second[j].name << " " << it->second[j].time << " " << it->second[j].flag << endl;
-	for(auto it = mapp.begin(); it != mapp.end(); it++)
+//	for(i = 0; i < v.size(); i++)
+//		cout << v[i].name << " " << v[i].time << " " << v[i].flag << endl;
+	string name = "";
+	double ans = 0;
+	for(i = 0; i < v.size(); i+=2)
 	{
-		double amount = 0.0;
-		int month = it->second[0].month;
-		cout << it->first;
-		printf(" %02d\n", month);
-		for(i = 0; i < it->second.size(); i+=2){
-			double money = getBill(it->second[i+1]) - getBill(it->second[i]);
-			printf("%02d:%02d:%02d %02d:%02d:%02d %d $%.2lf\n", it->second[i].day, it->second[i].hour, it->second[i].minute, 
-																it->second[i+1].day, it->second[i+1].hour, it->second[i+1].minute,
-																it->second[i+1].time-it->second[i].time, money);
-			amount += money;
+		if(v[i].name != name) {
+			if(i != 0)printf("Total amount: $%.2lf\n", ans);
+			cout << v[i].name;
+			printf(" %02d\n", v[i].mon);
+			name = v[i].name;
+			ans = 0.0;
 		}
-		printf("Total amount: $%.2lf\n", amount);
+		double fee = getMoney(v[i+1]) - getMoney(v[i]);
+		ans += fee;
+		printf("%02d:%02d:%02d %02d:%02d:%02d %d $%.2lf\n", v[i].dd, v[i].hh, v[i].mm, v[i+1].dd, v[i+1].hh, v[i+1].mm, v[i+1].time-v[i].time, fee);
 	}
+	printf("Total amount: $%.2lf\n", ans);
 	return 0;
 }

@@ -1,42 +1,41 @@
 #include <iostream>
+#include <vector>
 #include <queue>
 #include <algorithm>
 using namespace std;
-int tree[110][3];
-int number[110];
+vector<int> in,level;
 queue<int> q;
-int t = 0;
-void inorder(int root) {
-	if(tree[root][1] == -1 && tree[root][2] == -1) {
-		tree[root][0] = number[t++];
-		return ;
-	}
-	if(tree[root][1] != -1) inorder(tree[root][1]);
-	tree[root][0] = number[t++];
-	if(tree[root][2] != -1) inorder(tree[root][2]);
-}
-void levelorder(int root)
+int tree[110][3], index = 0;
+void inorder(int root)
 {
-	q.push(root);
-	while(!q.empty()) {
-		int v = q.front();
-		q.pop();
-		if(v != 0) cout << " ";
-		cout << tree[v][0];
-		if(tree[v][1] != -1) q.push(tree[v][1]);
-		if(tree[v][2] != -1) q.push(tree[v][2]);
-	}
+	if(root == -1) return ;
+	inorder(tree[root][1]);
+	tree[root][0] = in[index++];
+	inorder(tree[root][2]);
 }
 int main()
 {
-	int n, i, val;
+	int n, i;
 	cin >> n;
 	for(i = 0; i < n; i++)
 		scanf("%d%d", &tree[i][1], &tree[i][2]);
+	in.resize(n);
 	for(i = 0; i < n; i++)
-		scanf("%d", &number[i]);
-	sort(number, number+n);
+		scanf("%d", &in[i]);
+	sort(in.begin(), in.end());
 	inorder(0);
-	levelorder(0);
+	q.push(0);
+	while(!q.empty()) {
+		int v = q.front();
+		q.pop();
+		level.push_back(tree[v][0]);
+		if(tree[v][1] != -1) q.push(tree[v][1]);
+		if(tree[v][2] != -1) q.push(tree[v][2]);
+	}
+	for(i = 0; i < n; i++)
+	{
+		if(i != 0) printf(" ");
+		printf("%d", level[i]);
+	}
 	return 0;
 }

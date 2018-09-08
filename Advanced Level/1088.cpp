@@ -1,70 +1,56 @@
 #include <iostream>
 using namespace std;
-long long gcd(long long q, long long p)
-{
-	long long maxn = max(q, p), minn = min(q, p), temp;
-	if(minn == 0) return 1;
-	while(maxn % minn != 0){
-		temp = minn;
-		minn = maxn % temp;
-		maxn = temp;
-	}
-	return abs(minn);
+long long gcd(long long x, long long y) {
+	return y == 0 ? abs(x) : gcd(y, x % y);
 }
-void simplify(long long &q, long long &p)
-{
-	long long temp = gcd(q, p);
-	q /= temp;
-	p /= temp;
+long long toMin(long long &x, long long &y) {
+	long long temp = gcd(x, y);
+	x /= temp;
+	y /= temp;
 }
-string pprint(long long q, long long p)
-{
-	if(p == 0) return "Inf";
-	long long rn = q / p, rd = q % p;
-//	cout << rn << " " << rd << endl;
-	int flag = 0;
-	if(q * p < 0) flag = 1; 
-	string s = "";
-	if(rn == 0 && rd != 0) {
-		s = to_string(abs(q)) + "/" + to_string(abs(p));
-		if(flag == 1) s = "(-" + s + ")";
-	} else if(rd == 0){
-		s = to_string(abs(rn));
-		if(flag == 1) s = "(-" + s + ")"; 
-	} else {
-		s = to_string(abs(rn)) + " " + to_string(abs(rd)) + "/" + to_string(abs(p));
-		if(flag == 1) s = "(-" + s + ")";
+long long toAbs(long long &x, long long &y) {
+	x = abs(x);
+	y = abs(y);
+}
+void printPart(long long x, long long y) {
+	if(y == 0) {
+		printf("Inf");
+		return ;	
 	}
-	return s;
+	bool flag = true;
+	if((x < 0 && y > 0) || (x > 0 && y < 0)) flag = false;
+	toAbs(x, y);
+	toMin(x, y);
+	long long integer = x / y, particle = x % y;
+	if(flag == false) printf("(-");
+	if(particle == 0) printf("%lld", integer);
+	else {
+		if(integer == 0) printf("%lld/%lld", x, y);
+		else printf("%lld %lld/%lld", integer, particle, y);
+	}
+	if(flag == false) printf(")");
+}
+void print(long long a, long long b, long long c, long long d, char oper)
+{
+	printPart(a, b);
+	printf(" %c ", oper);
+	printPart(c, d);
+	cout << " = ";
+	switch(oper) {
+		case '+':printPart(a*d+b*c, b*d);break;
+		case '-':printPart(a*d-b*c, b*d);break;
+		case '*':printPart(a*c, b*d);break;
+		case '/':printPart(a*d, b*c);break;
+	}
+	printf("\n");
 }
 int main()
 {
-	long long a,b,c,d,rn,rd;
+	long long a,b,c,d;
 	scanf("%lld/%lld %lld/%lld", &a, &b, &c, &d);
-	simplify(a, b);
-	simplify(c, d);
-//	cout << "a: " << a << " b: " << b << " c: " << c << " d: " << d << endl;
-	rn = a*d + b*c;
-	rd = b*d;
-//	cout << "rn: " << rn << " rd: " << rd << endl;
-	simplify(rn, rd);
-	cout << pprint(a,b) << " + " << pprint(c,d) << " = " << pprint(rn, rd) << endl;
-	rn = a*d - b*c;
-	rd = b*d;
-	simplify(rn, rd);
-//	cout << "rn: " << rn << " rd: " << rd << endl;
-	cout << pprint(a,b) << " - " << pprint(c,d) << " = " << pprint(rn, rd) << endl;
-	rn = a * c;
-	rd = b * d;
-	simplify(rn, rd);
-	cout << pprint(a,b) << " * " << pprint(c,d) << " = " << pprint(rn, rd) << endl;
-	if(c < 0) {
-		c *= -1;
-		d *= -1;	
-	}
-	rn = a*d;
-	rd = b*c;
-	simplify(rn, rd);
-	cout << pprint(a,b) << " / " << pprint(c,d) << " = " << pprint(rn, rd) << endl;
+	print(a, b, c, d, '+');
+	print(a, b, c, d, '-');
+	print(a, b, c, d, '*');
+	print(a, b, c, d, '/');
 	return 0;
 }

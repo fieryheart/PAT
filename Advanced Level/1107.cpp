@@ -2,20 +2,25 @@
 #include <vector>
 #include <algorithm>
 using namespace std;
-int isRoot[1010] = {0}, father[1010] = {0}, course[1010] = {0};
-int findFather(int node)
+int father[1010], hobby[1010] = {0}, cluster[1010] = {0};
+vector<int> v;
+int find(int x)
 {
-	int temp = node;
-	while(father[node] != node)
-		node = father[node];
-	father[temp] = node;
-	return node;
+	int t = x;
+	while(x != father[x])
+		x = father[x];
+	while(t != x) {
+		int temp = father[t];
+		father[t] = x;
+		t = temp;
+	}
+	return x;
 }
-void Union(int nq, int np)
+void Union(int x, int y)
 {
-	nq = findFather(nq);
-	np = findFather(np);
-	if(nq != np) father[np] = nq;
+	x = find(x);
+	y = find(y);
+	father[x] = y;
 }
 bool cmp(int q, int p)
 {
@@ -23,33 +28,30 @@ bool cmp(int q, int p)
 }
 int main()
 {
-	int n,i,v,j,w;
-	vector<int> vt;
+	int n, i, j, k, h;
 	cin >> n;
 	for(i = 1; i <= n; i++)
 		father[i] = i;
 	for(i = 1; i <= n; i++)
 	{
-		scanf("%d: ", &v);
-		for(j = 0; j < v; j++)
+		scanf("%d: ", &k);
+		for(j = 0; j < k; j++)
 		{
-			scanf("%d", &w);
-			if(course[w] == 0) 
-				course[w] = i;
-			Union(i, course[w]);
+			scanf("%d", &h);
+			if(hobby[h] == 0) hobby[h] = i;
+			else {
+				if(hobby[h] != i) Union(i, hobby[h]);
+			}
 		}
 	}
 	for(i = 1; i <= n; i++)
-		isRoot[findFather(i)]++;
+		cluster[find(i)]++;
 	for(i = 1; i <= n; i++)
-		if(isRoot[i] != 0)
-			vt.push_back(isRoot[i]);
-	sort(vt.begin(), vt.end(), cmp);
-	cout << vt.size() << endl;
-	for(i = 0; i < vt.size(); i++)
-	{
-		if(i != 0) printf(" ");
-		printf("%d", vt[i]);
-	}
+		if(cluster[i] > 0) 
+			v.push_back(cluster[i]);
+	sort(v.begin(), v.end(), cmp);
+	cout << v.size() << endl;
+	for(i = 0; i < v.size(); i++)
+		i == 0 ? printf("%d",v[i]) : printf(" %d", v[i]);
 	return 0;
 }

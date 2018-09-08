@@ -1,46 +1,42 @@
 #include <iostream>
 #include <cmath>
 using namespace std;
-long long toNum(string s, long long radix)
+long long getnum(string s, long long radix)
 {
-	long long rst = 0;
-	for(int i = s.length()-1; i>=0;i--)
+	long long num = 0;
+	for(int i = s.length()-1; i >= 0; i--)
 	{
-		int num = s[i] <= '9' ? s[i]-'0' : s[i]-'a'+10;
-		rst += num*pow(radix, s.length()-1-i);
-	}
-	return rst;
+		if(s[i] > '9') num += (s[i]-'a'+10)*pow(radix, s.length()-1-i);
+		else num += (s[i]-'0')*pow(radix, s.length()-1-i);
+	
+	return num;
 }
 int main()
 {
-	int tag;
-	long long num, k;
-	string n1,n2,n3;
-	cin >> n1 >> n2 >> tag >> k;
-	if(tag == 1) {
-		n3 = n2;
-		num = toNum(n1, k);
-	} else {
-		n3 = n1;
-		num = toNum(n2, k);
+	string s1, s2, temp;
+	long long tag, radix;
+	int i;
+	cin >> s1 >> s2 >> tag >> radix;
+	if(tag == 2) {
+		temp = s2;
+		s2 = s1;
+		s1 = temp;
 	}
-	char t = ' ';
-	for(int i = 0; i < n3.length(); i++)
-		if(n3[i] > t) t = n3[i];
-	long long low = t <= '9' ? t-'0' : t-'a'+10;
-	low += 1;
-	long long high = max(num, low);
-	long long radix = -1;
-	while(low <= high){
-		long long mid = (low+high)/2;
-		long long nn = toNum(n3, mid);
-		if(nn < 0 || nn > num) high = mid - 1;
-		else if(nn == num){
-			radix = mid;
+	char n2c = ' ';
+	for(i = 0; i < s2.length(); i++)
+		if(s2[i] > n2c) n2c = s2[i];
+	long long n2r = n2c > '9' ? n2c-'a'+11 : n2c-'0'+1;
+	long long low = n2r, high = max(n2r, getnum(s1, radix)), ans = -1;
+	while(low <= high) {
+		long long mid = (low + high) / 2;
+		if(getnum(s2, mid) < 0 || getnum(s2, mid) > getnum(s1, radix)) high = mid-1;
+		else if(getnum(s2, mid) < getnum(s1, radix)) low = mid+1;
+		else {
+			ans = mid;
 			break;
-		} else low = mid+1;
+		}
 	}
-	if(radix == -1) printf("Impossible");
-	else printf("%lld", radix);
+	if(ans == -1) cout << "Impossible" << endl;
+	else cout << ans << endl;
 	return 0;
 }

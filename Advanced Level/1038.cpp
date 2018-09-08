@@ -2,33 +2,24 @@
 #include <vector>
 #include <algorithm>
 using namespace std;
-string delZero(string s)
-{
-	while(s[0] == '0') s = s.substr(1);
-	return s; 
-}
+vector<string> v;
 bool cmp(string q, string p)
 {
-	int len = q.length() > p.length() ? q.length() : p.length();
-	for(int i = 0; i < len; i++)
-		if(q[i % q.length()] != p[i % p.length()]) return q[i%q.length()] < p[i%p.length()];
-	return q.length() > p.length();	
+	return q+p < p+q;
 }
 int main()
 {
-	int n,i;
-	vector<string> v;
+	int n, i;
 	cin >> n;
 	v.resize(n);
 	for(i = 0; i < n; i++)
 		cin >> v[i];
 	sort(v.begin(), v.end(), cmp);
-	string r = "";
+	string s = "";
 	for(i = 0; i < n; i++)
-		r += v[i];
-	if(delZero(r) != "")
-		cout << delZero(r);
-	else
-		cout << "0";  
+		s += v[i];
+	while(s[0] == '0')	s.erase(s.begin());
+	if(s.length() == 0) s = "0";
+	cout << s << endl;
 	return 0;
 }

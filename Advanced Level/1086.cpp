@@ -2,47 +2,43 @@
 #include <vector>
 #include <stack>
 using namespace std;
-vector<int> v, pre, in;
-void postOrder(int start, int end, int origin)
+stack<int> st;
+vector<int> pre,in,post;
+void getpost(int inLeft, int inRight, int preLeft, int preRight)
 {
-	
-	int index = -1;
-	for(int i = start; i <= end; i++)
-	{
-		if(in[i] == pre[origin]){
-			index = i;
-			break;
-		}
+	if(inLeft == inRight) {
+		post.push_back(in[inLeft]);
+		return;
+	} else if(inRight > inLeft) {
+		int index = inLeft;
+		while(index <= inRight && in[index] != pre[preLeft]) index++;
+		getpost(inLeft, index-1, preLeft+1, preLeft+index-inLeft);
+		getpost(index+1, inRight, preLeft+index-inLeft+1, preRight);
+		post.push_back(in[index]);
 	}
-	if(index == -1) return;
-	postOrder(start, index-1, origin+1);
-	postOrder(index+1, end, origin+1+(index-start));
-	v.push_back(in[index]);
 }
 int main()
 {
-	stack<int> st;
-	int n, num, root,input = 0;
+	int n, i, num;
 	char cmd[10];
 	cin >> n;
-	while(input < n || !st.empty()) {
+	for(i = 0; i < n*2; i++)
+	{
 		scanf("%s", cmd);
-		
-		if(cmd[1] == 'u'){
+		if(cmd[1] == 'u') {
 			scanf("%d", &num);
 			st.push(num);
 			pre.push_back(num);
-			input++;
 		} else if(cmd[1] == 'o') {
-			int top = st.top();
-			in.push_back(top);
+			in.push_back(st.top());
 			st.pop();
- 		}
+		}
 	}
-	postOrder(0, n-1, 0);
-	for(int i = 0; i < v.size(); i++){
+	getpost(0, n-1, 0, n-1);
+	for(i = 0; i < post.size(); i++)
+	{
 		if(i != 0) printf(" ");
-		printf("%d",v[i]);	
+		printf("%d", post[i]);
 	}
 	return 0;
 }

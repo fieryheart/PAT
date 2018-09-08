@@ -3,42 +3,32 @@
 #include <algorithm>
 using namespace std;
 const int maxn = 99999999;
-int graph[510][510];
-int bikes[510]={0};
-int cmax,n,sp,m;
-vector<int> pre[510];
-vector<int> path, tempPath;
-int minNeed = 9999999, minBack = 9999999;
+vector<int> pre[510], tempPath, path;
+int bikes[510] = {0}, graph[510][510];
+int cmax, sp, n, m, minsend = maxn, minback = maxn;
 void dfs(int root)
 {
-	
 	tempPath.push_back(root);
 	if(root == 0) {
-		int need = 0, back = 0;
+		int send = 0, back = 0;
 		for(int i = tempPath.size()-1; i >= 0; i--)
 		{
 			int id = tempPath[i];
-			if(bikes[id] >= 0)
-			{
-				back += bikes[id];
-			} else {
-				if(back >= -bikes[id]) {
-					back += bikes[id];
-				}else {
-					need += -bikes[id]-back;
+			if(bikes[id] >= cmax) back += bikes[id] - cmax;
+			else {
+				if(back < cmax - bikes[id]) {
+					send += cmax - bikes[id] - back;
 					back = 0;
-				}
+				} else back -= cmax - bikes[id];
 			}
 		}
-		if(need < minNeed) {
-			minNeed = need;
-			minBack = back;
+		if(send < minsend) {
+			minsend = send;
+			minback = back;
 			path = tempPath;
-		} else if(need == minNeed) {
-			if(back < minBack) {
-				minBack = back;
-				path = tempPath;
-			}
+		} else if(send == minsend && back < minback) {
+			minback = back;
+			path = tempPath;
 		}
 		tempPath.pop_back();
 		return;
@@ -49,51 +39,50 @@ void dfs(int root)
 }
 void dijkstra()
 {
-	int dis[510],visit[510]={0};
-	fill(dis,dis+510,maxn);
-	dis[0]=0;
-	while(true)
-	{
-		int v=-1, min=maxn, i;
-		for(i = 0; i <= n; i++)
+	int dis[510],visit[510] = {0};
+	fill(dis, dis+510, maxn);
+	dis[0] = 0;
+	while(true) {
+		int v = -1, minn = maxn;
+		for(int i = 0; i <= n; i++)
 		{
-			if(visit[i] == 0 && dis[i] < min)
+			if(visit[i] == 0 && dis[i] < minn)
 			{
-				min = dis[i];
 				v = i;
+				minn = dis[i];
 			}
 		}
-		if(v==-1)break;
+		if(v == -1) break;
 		visit[v] = 1;
-		for(i = 0; i <= n; i++)
+		for(int w = 0; w <= n; w++)
 		{
-			if(graph[v][i] + dis[v] < dis[i]) {
-				dis[i] = graph[v][i] + dis[v];
-				pre[i].clear();
-				pre[i].push_back(v);
-			} else if(graph[v][i] + dis[v] == dis[i]) {
-				pre[i].push_back(v);
+			if(dis[w] > dis[v] + graph[v][w])
+			{
+				dis[w] = dis[v] + graph[v][w];
+				pre[w].clear();
+				pre[w].push_back(v);
+			} else if(dis[w] == dis[v] + graph[v][w]) {
+				pre[w].push_back(v);
 			}
- 		}
+		}
 	}
 	dfs(sp);
-	printf("%d ", minNeed);
-	for(int i = path.size()-1 ; i >= 0; i--)
+	printf("%d ", minsend);
+	for(int i = path.size()-1; i >= 0; i--)
 	{
 		printf("%d", path[i]);
 		if(i != 0) printf("->");
 	}
-	printf(" %d", minBack);
+	printf(" %d", minback);
 }
 int main()
 {
-	int i,j,v,w,t;
+	int i, v, w, t;
 	cin >> cmax >> n >> sp >> m;
-	bikes[0] = 0;
-	for(i = 1; i <= n; i++){
+	cmax /= 2;
+	bikes[0] = cmax;
+	for(i = 1; i <= n; i++)
 		scanf("%d", &bikes[i]);
-		bikes[i] = bikes[i]-cmax/2;
-	}
 	fill(graph[0], graph[0]+510*510, maxn);
 	for(i = 0; i < m; i++)
 	{
